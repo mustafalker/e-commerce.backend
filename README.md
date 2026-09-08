@@ -17,9 +17,15 @@ Proje 4 ana katmandan oluşmaktadır ve Dependency Rule (Bağımlılık Kuralı)
 
 ## 2. OOP Prensipleri ve Uygulama Alanları
 
-### A. Encapsulation (Kapsülleme)
-Bir nesnenin iç durumunu (state) dışarıdan rastgele değiştirilmeye karşı korumak ve değişimi kontrollü bir şekilde yapmaktır.
-*   **Domain Katmanında:** `Order` ve `User` entity'lerinin property setter'ları `private set;` olarak tanımlanmıştır. Bu nesneler ancak Constructor (Yapıcı Metot) aracılığıyla ve iş kuralları (validasyonlar) işletildikten sonra "geçerli" (valid) bir state ile oluşturulabilir. Durum değişiklikleri ise sadece `UpdatePassword` gibi kontrollü davranış metotlarıyla yapılır.
+### A. Encapsulation (Kapsülleme) ve Rich Domain Model (Zengin Alan Modeli)
+Bir nesnenin iç durumunu (state) dışarıdan rastgele değiştirilmeye karşı korumak ve değişimi kontrollü bir şekilde yapmaktır. Geleneksel yaklaşımlarda sınıflar sadece get/set property'lerinden oluşur (Anemic Domain Model) ve iş mantığı Controller veya Servis katmanına yazılır. Bu projede ise **Rich Domain Model** yaklaşımı benimsenmiştir.
+
+*   **Neden Doğrudan Veritabanına Insert Atmıyoruz?**
+    Veritabanı işlemleri sadece veriyi saklamak içindir. Ancak "Bir sepete eklenecek ürünün miktarı 0'dan küçük olamaz" kuralı bir veritabanı kuralı değil, **iş kuralıdır (business rule)**. Eğer doğrudan `Insert` atarsak, bu kuralı her veritabanına yazma işlemi yaptığımız yerde (servislerde, controller'larda) tekrar tekrar kontrol etmemiz gerekir.
+*   **Domain Katmanında Uygulanışı (`CartItem`, `Order`, `User`):**
+    Örneğin `CartItem` sınıfını incelediğimizde property'lerin `private set;` olarak tanımlandığını görürüz. Nesne ancak Constructor (Yapıcı Metot) aracılığıyla ve "Miktar en az 1 olmalıdır" gibi validasyonlardan geçtikten sonra oluşturulabilir.
+*   **Davranış Metotlarının Kullanımı:**
+    Dışarıdan birisi sepet miktarını değiştirmek istediğinde doğrudan `cartItem.Quantity = -5;` yazamaz. Bunun yerine `UpdateQuantity(int newQuantity)` gibi, sınıfın kendi davranış metotları kullanılır. Bu sayede nesne kendi veri bütünlüğünü her zaman korur ve hatalı veri oluşumu anında engellenir.
 
 ### B. Abstraction (Soyutlama) ve Inversion of Control
 Sistemin karmaşıklığını interface'ler (arayüzler) arkasına saklayarak sınıflar arasındaki sıkı bağı (tight coupling) kopardık.
