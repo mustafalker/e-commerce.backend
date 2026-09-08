@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using TiklaGelsin.Application.DTOs;
 using TiklaGelsin.Application.Factories;
@@ -11,18 +12,34 @@ namespace TiklaGelsin.Application.Services
     {
         private readonly IPaymentFactory _paymentFactory;
         private readonly IOrderRepository _orderRepository;
+        private readonly ICartRepository _cartRepository;
+        private readonly IUserRepository _userRepository;
 
-        public CheckoutService(IPaymentFactory paymentFactory, IOrderRepository orderRepository)
+        public CheckoutService(
+            IPaymentFactory paymentFactory, 
+            IOrderRepository orderRepository,
+            ICartRepository cartRepository,
+            IUserRepository userRepository)
         {
             _paymentFactory = paymentFactory;
             _orderRepository = orderRepository;
+            _cartRepository = cartRepository;
+            _userRepository = userRepository;
         }
 
-        public async Task<(bool Success, Guid OrderId, string ErrorMessage)> ProcessCheckoutAsync(CheckoutRequest request, string userId)
+        public async Task<(bool Success, Guid OrderId, string ErrorMessage)> ProcessCheckoutAsync(CheckoutRequest request, string username)
         {
             try
             {
-                var order = new Order(Guid.NewGuid(), userId, request.TotalAmount);
+                var user = await _userRepository.GetByUsernameAsync(username);
+                if (user == null) return (false, Guid.Empty, "Kullanıcı bulunamadı.");
+
+                var cartItems = (await _cartRepository.GetCartByUserIdAsync(user.Id)).ToList();
+                if (!cartItems.Any()) return (false, Guid.Empty, "Sepetiniz boş.");
+
+                var totalAmount = cartItems.Sum(c => c.Quantity * c.UnitPrice);
+
+                var order = new Order(Guid.NewGuid(), user.Id.ToString(), totalAmount);
                 var paymentMethod = _paymentFactory.CreatePaymentMethod(request.PaymentType);
 
                 bool isSuccess = await paymentMethod.ProcessPaymentAsync(order);
@@ -30,6 +47,10 @@ namespace TiklaGelsin.Application.Services
                 if (isSuccess)
                 {
                     await _orderRepository.AddAsync(order);
+                    
+                    // Sepeti temizle
+                    await _cartRepository.ClearCartAsync(user.Id);
+
                     return (true, order.Id, string.Empty);
                 }
 

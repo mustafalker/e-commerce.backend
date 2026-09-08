@@ -10,6 +10,9 @@ namespace TiklaGelsin.Infrastructure.Persistence
 
         public DbSet<OrderEntity> Orders { get; set; }
         public DbSet<UserEntity> Users { get; set; }
+        public DbSet<ProductEntity> Products { get; set; }
+        public DbSet<CartItemEntity> CartItems { get; set; }
+        public DbSet<OrderItemEntity> OrderItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

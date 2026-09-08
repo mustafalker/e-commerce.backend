@@ -10,8 +10,10 @@ namespace TiklaGelsin.Infrastructure.Mapping
         {
             // Domain -> Entity
             CreateMap<Order, OrderEntity>().ReverseMap();
-            
             CreateMap<User, UserEntity>().ReverseMap();
+            CreateMap<Product, ProductEntity>().ReverseMap();
+            CreateMap<CartItem, CartItemEntity>().ReverseMap();
+            CreateMap<OrderItem, OrderItemEntity>().ReverseMap();
         }
     }
 }
