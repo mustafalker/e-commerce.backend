@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="TiklaGelsin.API/TiklaGelsin.API.csproj" />
+  <Project Path="TiklaGelsin.Application/TiklaGelsin.Application.csproj" />
+  <Project Path="TiklaGelsin.Domain/TiklaGelsin.Domain.csproj" />
+  <Project Path="TiklaGelsin.Infrastructure/TiklaGelsin.Infrastructure.csproj" />
+</Solution>
